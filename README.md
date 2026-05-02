@@ -19,7 +19,7 @@ A starter template for building modern React applications with [Flowbite React](
 ## Getting Started
 
 ```bash
-npm i --legacy-peer-deps
+npm i
 npm run dev
 ```
 
