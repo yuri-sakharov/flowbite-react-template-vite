@@ -54,7 +54,7 @@ export const GitRepositoryUsage = () => {
   if (error) return "An error has occurred: " + error.message;
 
   return (
-    <div>
+    <div className="dark:text-white">
       <h1>{data.name}</h1>
       <p>{data.description}</p>
       <strong>👀 {data.subscribers_count}</strong>{" "}
