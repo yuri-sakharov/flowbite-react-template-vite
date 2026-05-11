@@ -25,14 +25,14 @@ npm run dev
 
 ## Scripts
 
-| Command              | Description                          |
-| -------------------- | ------------------------------------ |
-| `npm run dev`        | Start development server             |
-| `npm run build`      | Type-check and build for production  |
-| `npm run preview`    | Preview the production build locally |
-| `npm run lint`       | Run ESLint                           |
-| `npm run format`     | Format code with Prettier            |
-| `npm run format:check` | Check formatting without writing   |
+| Command                | Description                          |
+| ---------------------- | ------------------------------------ |
+| `npm run dev`          | Start development server             |
+| `npm run build`        | Type-check and build for production  |
+| `npm run preview`      | Preview the production build locally |
+| `npm run lint`         | Run ESLint                           |
+| `npm run format`       | Format code with Prettier            |
+| `npm run format:check` | Check formatting without writing     |
 
 ## Project Structure
 
@@ -42,10 +42,6 @@ src/
 ├── main.tsx       — Entry point
 └── index.css      — Tailwind & Flowbite imports
 ```
-
-
-
-
 
 ## License
 
