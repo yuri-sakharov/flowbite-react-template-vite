@@ -1,4 +1,5 @@
 import { DarkThemeToggle } from "flowbite-react";
+import { GitRepositoryUsage } from "./GitRepositoryUsage.tsx";
 
 export default function App() {
   const CARDS = [
@@ -158,6 +159,7 @@ export default function App() {
             </h2>
           </span>
         </div>
+        <GitRepositoryUsage />
 
         <div className="relative flex w-full flex-col items-start gap-6 self-stretch">
           <div className="grid w-full grid-cols-1 gap-6 md:grid-cols-2">
