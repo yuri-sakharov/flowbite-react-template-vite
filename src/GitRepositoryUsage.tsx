@@ -38,10 +38,8 @@ interface GitHubRepository {
   network_count?: number; // Only returned by the single repo endpoint
 }
 
-const getGitRepositoryData = async (): Promise<GitHubRepository> => {
-  const res = await ky("https://api.github.com/repos/oven-sh/bun");
-  return res.json();
-};
+const getGitRepositoryData = async () =>
+  await ky<GitHubRepository>("https://api.github.com/repos/oven-sh/bun").json();
 
 export const GitRepositoryUsage = () => {
   const { isPending, error, data } = useQuery({
