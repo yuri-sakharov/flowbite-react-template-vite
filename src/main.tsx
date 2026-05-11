@@ -12,7 +12,7 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ThemeInit />
     <QueryClientProvider client={queryClient}>
-    <App />
+      <App />
     </QueryClientProvider>
   </StrictMode>,
 );
