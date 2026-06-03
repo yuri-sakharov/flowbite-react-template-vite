@@ -1,7 +1,7 @@
 import { DarkThemeToggle } from "flowbite-react";
 import { GitRepositoryUsage } from "./GitRepositoryUsage.tsx";
 
-export default function App() {
+export const App = () => {
   const CARDS = [
     {
       title: "Flowbite React Docs",
@@ -208,4 +208,4 @@ export default function App() {
       </div>
     </main>
   );
-}
+};
