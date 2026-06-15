@@ -1,5 +1,5 @@
 import { DarkThemeToggle } from "flowbite-react";
-import { GitRepositoryUsage } from "./GitRepositoryUsage.tsx";
+import { GitRepositoryUsage } from "./components";
 
 export const App = () => {
   const CARDS = [
