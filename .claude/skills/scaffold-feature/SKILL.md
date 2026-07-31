@@ -18,7 +18,8 @@ through its `index.ts` barrel.
 ```text
 src/features/[domain]/
 ├── api/                 # pure async ky fetchers — no React, no hooks
-│   └── fetch[Domain].ts
+│   ├── fetch[Domain].ts
+│   └── [domain].handlers.ts  # MSW handlers for this feature's endpoints (see §5)
 ├── components/          # UI local to this feature, each in its own folder
 │   ├── [SubComponent]/
 │   │   ├── [SubComponent].tsx
@@ -83,7 +84,33 @@ const useUpdateThing = () => {
 Simple (non-collection) mutations may skip the optimistic steps and just
 `invalidateQueries` in `onSuccess`.
 
-## 4. Before finishing
+## 4. Mocking this feature's API for tests
+
+Don't append this feature's endpoints directly into the shared
+`src/mocks/handlers.ts` array — every feature editing that same literal array
+is a routine merge-conflict generator. Instead:
+
+```ts
+// src/features/[domain]/api/[domain].handlers.ts
+import { http, HttpResponse } from "msw";
+import type { HttpHandler } from "msw";
+
+export const [domain]Handlers: HttpHandler[] = [
+  http.get("/api/[domain]", () => HttpResponse.json([/* ... */])),
+];
+```
+
+```ts
+// src/mocks/handlers.ts
+import { [domain]Handlers } from "../features/[domain]/api/[domain].handlers.ts";
+
+export const handlers: HttpHandler[] = [...[domain]Handlers];
+```
+
+Component tests for this feature (`use[Domain]Data.test.ts`, etc.) then rely on
+the shared `src/test/setup.ts` MSW server — no per-test `setupServer` needed.
+
+## 5. Before finishing
 
 - Each new component folder has an `index.ts` barrel; the feature's top-level
   `index.ts` re-exports its public surface.

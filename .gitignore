@@ -36,3 +36,5 @@ CLAUDE.local.md
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+/coverage/

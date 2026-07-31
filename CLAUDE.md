@@ -6,22 +6,24 @@ Lean reference for every session. Procedures live in `.claude/skills/`, not here
 
 ## Tech Stack
 
-| Layer             | Library                                      | Version                      |
-| ----------------- | -------------------------------------------- | ---------------------------- |
-| UI Framework      | React                                        | 19                           |
-| Compiler          | React Compiler (babel-plugin-react-compiler) | 1.x                          |
-| Build             | Vite                                         | 8                            |
-| Language          | TypeScript                                   | 7, strict                    |
-| Component library | flowbite-react                               | 0.12                         |
-| Styling           | Tailwind CSS                                 | v4 (via `@tailwindcss/vite`) |
-| Data fetching     | TanStack Query                               | v5                           |
-| HTTP client       | ky                                           | v2                           |
-| URL state         | nuqs                                         | v2                           |
-| Debounce          | use-debounce                                 | v10                          |
-| Icons             | lucide-react                                 | latest                       |
-| Dates             | date-fns                                     | v4                           |
-| Error boundary    | react-error-boundary                         | v6                           |
-| E2E testing       | Playwright                                   | v1 (`@playwright/test`)      |
+| Layer                  | Library                                      | Version                      |
+| ---------------------- | -------------------------------------------- | ---------------------------- |
+| UI Framework           | React                                        | 19                           |
+| Compiler               | React Compiler (babel-plugin-react-compiler) | 1.x                          |
+| Build                  | Vite                                         | 8                            |
+| Language               | TypeScript                                   | 7, strict                    |
+| Component library      | flowbite-react                               | 0.12                         |
+| Styling                | Tailwind CSS                                 | v4 (via `@tailwindcss/vite`) |
+| Data fetching          | TanStack Query                               | v5                           |
+| HTTP client            | ky                                           | v2                           |
+| URL state              | nuqs                                         | v2                           |
+| Debounce               | use-debounce                                 | v10                          |
+| Icons                  | lucide-react                                 | latest                       |
+| Dates                  | date-fns                                     | v4                           |
+| Error boundary         | react-error-boundary                         | v6                           |
+| E2E testing            | Playwright                                   | v1 (`@playwright/test`)      |
+| Unit/component testing | Vitest + React Testing Library               | v4 / v16                     |
+| API mocking (tests)    | MSW                                          | v2 (`msw/node`)              |
 
 ---
 
@@ -38,14 +40,43 @@ npm run e2e          # Playwright end-to-end tests (headless)
 npm run e2e:ui       # Playwright UI mode
 npm run e2e:debug    # Playwright debug mode
 npm run e2e:report   # Open the last HTML report
+npm run test         # Vitest unit/component tests (single run)
+npm run test:watch   # Vitest watch mode
+npm run test:ui      # Vitest UI mode
+npm run test:coverage # Vitest with coverage (@vitest/coverage-v8)
+npm run test:types   # Typecheck test/mock files (tsconfig.test.json) — not part of `build`
 ```
 
-There is **no unit-test framework** in this project — don't invent `npm test`.
-End-to-end coverage lives under `tests/` and runs via Playwright (`npm run e2e`);
-add new specs there, not ad hoc scripts. The quality gates are `npm run lint` and
-`npm run format:check`; run both before pushing, and run `npm run e2e` when a
-change touches user-facing flows. There is no CI and no pre-commit hook — nothing
-enforces this automatically.
+Unit/component tests run via Vitest + React Testing Library, colocated next to
+the component they cover (`Foo.test.tsx` beside `Foo.tsx`) — same folder
+convention as everything else, no separate `__tests__` tree. End-to-end coverage
+lives under `tests/` and runs via Playwright (`npm run e2e`); add new e2e specs
+there, not ad hoc scripts. The quality gates are `npm run lint`,
+`npm run format:check`, and `npm run test`; run all three before pushing, and
+run `npm run e2e` when a change touches user-facing flows. CI
+(`.github/workflows/playwright.yml`) runs `npm run test` and the Playwright
+suite on every push/PR; lint and format:check are not yet wired into CI (see
+note below) so those two still rely on running them locally before pushing.
+
+Mock network calls with MSW rather than mocking `ky` or fetchers directly.
+`src/mocks/handlers.ts` is the shared array `setupServer` consumes (wired up in
+`src/test/setup.ts`) — don't append feature-specific handlers to that array
+directly, since unrelated features editing the same literal array is a routine
+merge-conflict generator. Instead, colocate a `[domain].handlers.ts` next to
+each feature's `api/` fetchers, exporting its own `HttpHandler[]`, and spread it
+into `src/mocks/handlers.ts`'s array from there. See the `scaffold-feature`
+skill for the exact pattern.
+
+Vitest reuses `vite.config.ts`'s `test` block (via `defineConfig` from
+`vitest/config`) rather than a separate config file. Under Vitest
+(`process.env.VITEST === "true"`), the `flowbiteReact()`, Tailwind, and React
+Compiler babel plugins are all skipped — none of them do anything a jsdom + RTL
+assertion can observe, and `flowbiteReact()` specifically leaves a handle open
+that otherwise adds a ~10s delay to every test run's exit.
+
+`npm run lint` currently fails project-wide for a reason unrelated to testing:
+`typescript-eslint@8.65.0` doesn't yet support `typescript@7.0.2`. This is why
+lint isn't wired into CI yet — fix the version mismatch before adding it there.
 
 ---
 
@@ -65,6 +96,8 @@ src/
       hooks/      # TanStack Query hooks (queries + mutations)
       types/
   pages/        # Route-level views
+  mocks/        # Shared MSW handlers array (feature handlers spread in from api/)
+  test/         # Vitest setup: jest-dom matchers, setupServer + MSW lifecycle, RTL cleanup
   App.tsx
   main.tsx      # Root: providers, ErrorBoundary, router
   index.css     # Tailwind base import
@@ -158,15 +191,16 @@ The React Compiler auto-memoises components and hook outputs. Therefore:
 
 ## Dos and Don'ts
 
-| Do                                          | Don't                                            |
-| ------------------------------------------- | ------------------------------------------------ |
-| Named arrow-function components             | Default exports or `function` declarations       |
-| `FallbackComponent` on `ErrorBoundary`      | Raw string/node `fallback` prop                  |
-| `useQuery` / `useMutation` for server state | `useEffect` + `useState` for fetching            |
-| `useQueryState` (nuqs) for URL state        | Duplicating URL params in component state        |
-| Lean on React Compiler for memoisation      | Manual `useMemo` / `useCallback` / `memo`        |
-| Tailwind utilities + flowbite-react         | Inline styles or arbitrary CSS files             |
-| `interface` for object shapes               | `type` for plain object shapes                   |
-| `index.ts` barrel in every component folder | Deep import paths like `../../MyWidget/MyWidget` |
-| Fix types properly                          | Silence errors with `as` or `// @ts-ignore`      |
-| Playwright specs under `tests/` for e2e     | Inventing `npm test` or a unit-test framework    |
+| Do                                          | Don't                                              |
+| ------------------------------------------- | -------------------------------------------------- |
+| Named arrow-function components             | Default exports or `function` declarations         |
+| `FallbackComponent` on `ErrorBoundary`      | Raw string/node `fallback` prop                    |
+| `useQuery` / `useMutation` for server state | `useEffect` + `useState` for fetching              |
+| `useQueryState` (nuqs) for URL state        | Duplicating URL params in component state          |
+| Lean on React Compiler for memoisation      | Manual `useMemo` / `useCallback` / `memo`          |
+| Tailwind utilities + flowbite-react         | Inline styles or arbitrary CSS files               |
+| `interface` for object shapes               | `type` for plain object shapes                     |
+| `index.ts` barrel in every component folder | Deep import paths like `../../MyWidget/MyWidget`   |
+| Fix types properly                          | Silence errors with `as` or `// @ts-ignore`        |
+| Playwright specs under `tests/` for e2e     | Writing e2e-only checks as Vitest unit tests       |
+| Colocated `*.test.tsx` + MSW for unit tests | Mocking `ky`/fetchers directly, real network calls |
