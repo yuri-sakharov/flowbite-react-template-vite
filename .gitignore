@@ -29,3 +29,10 @@ CLAUDE.local.md
 /.vscode/
 /package-lock.json
 /.flowbite-react/class-list.json
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
