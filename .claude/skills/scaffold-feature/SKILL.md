@@ -5,9 +5,9 @@ description: Scaffold a new domain feature module under src/pages/ with the proj
 
 # Scaffold a feature module
 
-Use this when creating a new domain module under `src/pages/`. Shared UI reused
+Use this when creating a new domain module under `src/features/`. Shared UI reused
 across features stays in `src/components/`; route-level views go in `src/pages/`.
-Only reach for a `pages/` module when the work is a self-contained domain with
+Only reach for a `features/` module when the work is a self-contained domain with
 its own data fetching.
 
 ## 1. Directory layout

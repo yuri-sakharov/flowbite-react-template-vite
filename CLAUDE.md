@@ -11,7 +11,7 @@ Lean reference for every session. Procedures live in `.claude/skills/`, not here
 | UI Framework      | React                                        | 19                           |
 | Compiler          | React Compiler (babel-plugin-react-compiler) | 1.x                          |
 | Build             | Vite                                         | 8                            |
-| Language          | TypeScript                                   | 6, strict                    |
+| Language          | TypeScript                                   | 7, strict                    |
 | Component library | flowbite-react                               | 0.12                         |
 | Styling           | Tailwind CSS                                 | v4 (via `@tailwindcss/vite`) |
 | Data fetching     | TanStack Query                               | v5                           |
@@ -21,6 +21,7 @@ Lean reference for every session. Procedures live in `.claude/skills/`, not here
 | Icons             | lucide-react                                 | latest                       |
 | Dates             | date-fns                                     | v4                           |
 | Error boundary    | react-error-boundary                         | v6                           |
+| E2E testing       | Playwright                                   | v1 (`@playwright/test`)      |
 
 ---
 
@@ -33,12 +34,18 @@ npm run lint         # ESLint
 npm run format       # Prettier (writes)
 npm run format:check # Prettier (check only)
 npm run preview      # Serve the production build locally
+npm run e2e          # Playwright end-to-end tests (headless)
+npm run e2e:ui       # Playwright UI mode
+npm run e2e:debug    # Playwright debug mode
+npm run e2e:report   # Open the last HTML report
 ```
 
-There is **no test script and no test framework** in this project — don't invent
-`npm test`. The only quality gates are `npm run lint` and `npm run format:check`;
-run both before pushing. There is no CI and no pre-commit hook — nothing enforces
-this automatically.
+There is **no unit-test framework** in this project — don't invent `npm test`.
+End-to-end coverage lives under `tests/` and runs via Playwright (`npm run e2e`);
+add new specs there, not ad hoc scripts. The quality gates are `npm run lint` and
+`npm run format:check`; run both before pushing, and run `npm run e2e` when a
+change touches user-facing flows. There is no CI and no pre-commit hook — nothing
+enforces this automatically.
 
 ---
 
@@ -162,3 +169,4 @@ The React Compiler auto-memoises components and hook outputs. Therefore:
 | `interface` for object shapes               | `type` for plain object shapes                   |
 | `index.ts` barrel in every component folder | Deep import paths like `../../MyWidget/MyWidget` |
 | Fix types properly                          | Silence errors with `as` or `// @ts-ignore`      |
+| Playwright specs under `tests/` for e2e     | Inventing `npm test` or a unit-test framework    |
