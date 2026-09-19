@@ -22,7 +22,7 @@ Lean reference for every session. Procedures live in `.claude/skills/`, not here
 | Dates                  | date-fns                                     | v4                           |
 | Error boundary         | react-error-boundary                         | v6                           |
 | E2E testing            | Playwright                                   | v1 (`@playwright/test`)      |
-| Unit/component testing | Vitest + React Testing Library               | v4 / v16                     |
+| Unit/component testing | Vitest + React Testing Library               | v5 / v16                     |
 | API mocking (tests)    | MSW                                          | v2 (`msw/node`)              |
 
 ---
